@@ -1,0 +1,37 @@
+# Build results
+bin/
+obj/
+*.dll
+*.exe
+*.pdb
+
+# Visual Studio
+.vs/
+*.user
+*.userprefs
+*.sln.docstates
+.vscode/
+
+# ReSharper
+.idea/
+*.sln.iml
+
+# Database
+*.db
+*.db-shm
+*.db-wal
+
+# Entity Framework
+Migrations/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+*.swp
+*.swo
+*~
+
+# Project specific
+BarkodOtomasyon.db
