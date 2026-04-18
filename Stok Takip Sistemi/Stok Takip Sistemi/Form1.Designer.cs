@@ -18,9 +18,7 @@
             DataGridViewCellStyle dataGridViewCellStyle1 = new DataGridViewCellStyle();
             DataGridViewCellStyle dataGridViewCellStyle2 = new DataGridViewCellStyle();
             panel1 = new Panel();
-            button3 = new Button();
             dateTimeGelis = new DateTimePicker();
-            button_excelindir = new Button();
             button1 = new Button();
             button_sil = new Button();
             button_kaydet = new Button();
@@ -76,9 +74,7 @@
             // panel1
             // 
             panel1.BackColor = Color.White;
-            panel1.Controls.Add(button3);
             panel1.Controls.Add(dateTimeGelis);
-            panel1.Controls.Add(button_excelindir);
             panel1.Controls.Add(button1);
             panel1.Controls.Add(button_sil);
             panel1.Controls.Add(button_kaydet);
@@ -115,24 +111,6 @@
             panel1.TabIndex = 0;
             panel1.Paint += Panel_Paint;
             // 
-            // button3
-            // 
-            button3.BackColor = Color.FromArgb(149, 165, 166);
-            button3.FlatAppearance.BorderSize = 0;
-            button3.FlatAppearance.MouseOverBackColor = Color.FromArgb(127, 140, 141);
-            button3.FlatStyle = FlatStyle.Flat;
-            button3.Font = new Font("Segoe UI", 12F, FontStyle.Bold);
-            button3.ForeColor = Color.White;
-            button3.Location = new Point(182, 704);
-            button3.Name = "button3";
-            button3.Size = new Size(130, 35);
-            button3.TabIndex = 16;
-            button3.Text = "↶ Geri Al";
-            button3.UseVisualStyleBackColor = false;
-            button3.Click += button3_Click;
-            button3.MouseEnter += Button_MouseEnter;
-            button3.MouseLeave += Button_MouseLeave;
-            // 
             // dateTimeGelis
             // 
             dateTimeGelis.Font = new Font("Segoe UI", 14F);
@@ -142,24 +120,6 @@
             dateTimeGelis.Size = new Size(285, 32);
             dateTimeGelis.TabIndex = 11;
             dateTimeGelis.ValueChanged += dateTimeGelis_ValueChanged;
-            // 
-            // button_excelindir
-            // 
-            button_excelindir.BackColor = Color.FromArgb(155, 89, 182);
-            button_excelindir.FlatAppearance.BorderSize = 0;
-            button_excelindir.FlatAppearance.MouseOverBackColor = Color.FromArgb(142, 68, 173);
-            button_excelindir.FlatStyle = FlatStyle.Flat;
-            button_excelindir.Font = new Font("Segoe UI", 12F, FontStyle.Bold);
-            button_excelindir.ForeColor = Color.White;
-            button_excelindir.Location = new Point(14, 704);
-            button_excelindir.Name = "button_excelindir";
-            button_excelindir.Size = new Size(120, 35);
-            button_excelindir.TabIndex = 10;
-            button_excelindir.Text = "📊 Excel Aç";
-            button_excelindir.UseVisualStyleBackColor = false;
-            button_excelindir.Click += button_excelindir_Click;
-            button_excelindir.MouseEnter += Button_MouseEnter;
-            button_excelindir.MouseLeave += Button_MouseLeave;
             // 
             // button1
             // 
@@ -734,7 +694,7 @@
         private Button button_kaydet;
         private Button button_sil;
         private Button button1;
-        private Button button_excelindir;
+
         private Label lblAra;
         private TextBox txtAra;
         private ComboBox comboBoxSayfaSec;
@@ -742,7 +702,6 @@
         private ComboBox comboBoxMevsimFiltre;
         private Label labelMevsimFiltre;
         private DataGridView dataGridView1;
-        private Button button3;
         private Label labelKayitSayisi;
         private TextBox textBoxSeri;
         private TextBox textBoxFiyat;

@@ -179,9 +179,7 @@ namespace StokTakipSistemi
             try { button_sil.Location = new Point(115, y); button_sil.Size = new Size(100, 35); } catch { }
             y += 45;
             try { button1.Location = new Point(leftMargin, y); button1.Size = new Size(100, 35); button1.Text = "✏️ Güncelle"; } catch { }
-            try { button3.Location = new Point(115, y); button3.Size = new Size(100, 35); button3.Text = "↶ Geri Al"; } catch { }
             y += 45;
-            try { button_excelindir.Location = new Point(leftMargin, y); button_excelindir.Size = new Size(215, 35); button_excelindir.Text = "📊 Excel Aç"; } catch { }
 
             // Panel2 (Grid panel) yerleştir - panel1 yanından başla, panel3 için yer bırak
             if (panel2 != null)
@@ -779,38 +777,39 @@ namespace StokTakipSistemi
             var result = MessageBox.Show("Seçili satırı silmek istediğinize emin misiniz?", "Onay", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
             if (result != DialogResult.Yes) return;
 
-            PushUndo();
-            if (aramaModuAktif)
+            try
             {
-                try
+                var row = dataGridView1.CurrentRow;
+                
+                // Barkod sütunundan barkod kodunu al (ilk sütun)
+                string barcodeCode = row.Cells["Barkod"]?.Value?.ToString() ?? "";
+                
+                if (string.IsNullOrEmpty(barcodeCode))
                 {
-                    var row = dataGridView1.CurrentRow;
-                    string depoAdi = row.Cells["Depo"]?.Value?.ToString() ?? "";
-                    int orijinalIndex = -1;
-                    if (row.Cells["__OrijinalIndex"]?.Value != null)
-                        int.TryParse(row.Cells["__OrijinalIndex"].Value.ToString(), out orijinalIndex);
+                    MessageBox.Show("Barkod bilgisi bulunamadı!", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
 
-                    if (!string.IsNullOrEmpty(depoAdi) && sayfaTablolar.ContainsKey(depoAdi) && orijinalIndex >= 0)
-                    {
-                        sayfaTablolar[depoAdi].Rows.RemoveAt(orijinalIndex);
-                        KaydetVeYenile();
-                        txtAra_TextChanged(txtAra, EventArgs.Empty);
-                        MessageBox.Show("Kayıt silindi!", "Başarılı", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    }
-                    else
-                        MessageBox.Show("Silinecek satır bulunamadı!", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
-                catch (Exception ex)
+                // Barkoda göre ürünü bul
+                var product = _stockService.GetProductByBarcode(barcodeCode);
+                if (product == null)
                 {
-                    MessageBox.Show("Silme hatası: " + ex.Message, "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show("Ürün bulunamadı!", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
                 }
+
+                // Veritabanından sil
+                _productService.DeleteProduct(product.Id);
+                
+                // Grid'i yenile
+                RefreshGrid();
+                
+                MessageBox.Show("Ürün başarıyla silindi!", "Başarılı", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
-            else
+            catch (Exception ex)
             {
-                var tablo = GetSeciliTablo();
-                tablo.Rows.RemoveAt(dataGridView1.CurrentRow.Index);
-                KaydetVeYenile();
-                MessageBox.Show("Kayıt silindi!", "Başarılı", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("Silme hatası: " + ex.Message, "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                System.Diagnostics.Debug.WriteLine($"Delete Error: {ex.Message}\n{ex.StackTrace}");
             }
         }
 
@@ -819,25 +818,6 @@ namespace StokTakipSistemi
         {
             UpdateSelectedRowFromForm();
             Temizle(); // Form alanlarını temizle
-        }
-
-        private void button_excelindir_Click(object sender, EventArgs e)
-        {
-            using (SaveFileDialog sfd = new SaveFileDialog())
-            {
-                sfd.Title = "Excel dosyasını kaydetmek için konum ve isim seçin";
-                sfd.Filter = "Excel Dosyası|*.xlsx";
-                sfd.FileName = "veriler.xlsx";
-                if (sfd.ShowDialog() == DialogResult.OK)
-                {
-                    string secilenYol = GetUniqueFileName(sfd.FileName);
-                    ExcelKaydet(secilenYol);
-                    if (File.Exists(secilenYol))
-                        System.Diagnostics.Process.Start("explorer.exe", secilenYol);
-                    else
-                        MessageBox.Show("Excel dosyası kaydedilemedi!", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
-            }
         }
 
         // Dosya çakışmalarını önlemek için benzersiz dosya adı üretir
@@ -1076,20 +1056,6 @@ namespace StokTakipSistemi
         */
 
 
-
-        private void button3_Click(object sender, EventArgs e)
-        {
-            if (undoStack.Count > 0)
-            {
-                sayfaTablolar = undoStack.Pop();
-                GridHazirla();
-                KaydetVeYenile();
-            }
-            else
-            {
-                MessageBox.Show("Geri alınacak bir işlem yok.");
-            }
-        }
 
         // Yazdırma işlemi
         private void buttonPrint_Click(object sender, EventArgs e)
@@ -1490,9 +1456,13 @@ namespace StokTakipSistemi
                     return;
                 }
 
+                // Seçili depoyu al
+                var selectedDepot = comboBoxSayfaSec.SelectedItem as Depot;
+                string depoAdi = selectedDepot?.Name ?? "Bilinmeyen Depo";
+
                 // Desktop yolunu al
                 string desktopPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
-                string fileName = $"StokListesi_{DateTime.Now:dd-MM-yyyy_HHmmss}.xlsx";
+                string fileName = $"StokListesi_{depoAdi}_{DateTime.Now:dd-MM-yyyy_HHmmss}.xlsx";
                 string filePath = Path.Combine(desktopPath, fileName);
 
                 // Excel dosyası oluştur
@@ -1500,21 +1470,28 @@ namespace StokTakipSistemi
                 {
                     var worksheet = workbook.Worksheets.Add("Stok Listesi");
                     
-                    // Başlıkları ekle
+                    // Başlıkları ekle (Depo sütunu ilk sütun)
+                    worksheet.Cell(1, 1).Value = "Depo";
+                    worksheet.Cell(1, 1).Style.Font.Bold = true;
+                    worksheet.Cell(1, 1).Style.Fill.BackgroundColor = XLColor.LightGray;
+
                     for (int col = 0; col < dataGridView1.Columns.Count; col++)
                     {
-                        worksheet.Cell(1, col + 1).Value = dataGridView1.Columns[col].HeaderText;
-                        worksheet.Cell(1, col + 1).Style.Font.Bold = true;
-                        worksheet.Cell(1, col + 1).Style.Fill.BackgroundColor = XLColor.LightGray;
+                        worksheet.Cell(1, col + 2).Value = dataGridView1.Columns[col].HeaderText;
+                        worksheet.Cell(1, col + 2).Style.Font.Bold = true;
+                        worksheet.Cell(1, col + 2).Style.Fill.BackgroundColor = XLColor.LightGray;
                     }
 
-                    // Verileri ekle
+                    // Verileri ekle (Depo adını her satırın başına ekle)
                     for (int row = 0; row < dataGridView1.Rows.Count; row++)
                     {
+                        worksheet.Cell(row + 2, 1).Value = depoAdi;
+                        worksheet.Cell(row + 2, 1).Style.Font.Italic = true;
+
                         for (int col = 0; col < dataGridView1.Columns.Count; col++)
                         {
                             var cellValue = dataGridView1.Rows[row].Cells[col].Value;
-                            worksheet.Cell(row + 2, col + 1).Value = cellValue?.ToString() ?? "";
+                            worksheet.Cell(row + 2, col + 2).Value = cellValue?.ToString() ?? "";
                         }
                     }
 
