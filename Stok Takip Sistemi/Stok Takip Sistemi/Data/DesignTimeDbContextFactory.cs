@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 
-namespace BarkodOtomasyon.Data;
+namespace StokTakipSistemi.Data;
 
 public class DesignTimeDbContextFactory : IDesignTimeDbContextFactory<DatabaseContext>
 {

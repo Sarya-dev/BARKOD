@@ -1,8 +1,7 @@
-namespace BarkodOtomasyon.Services
-
+namespace StokTakipSistemi.Services
 {
-    using BarkodOtomasyon.Data;
-    using BarkodOtomasyon.Models;
+    using StokTakipSistemi.Data;
+    using StokTakipSistemi.Models;
     using System.Collections.Generic;
     using System.Linq;
 
@@ -21,7 +20,7 @@ namespace BarkodOtomasyon.Services
             _context.SaveChanges();
         }
 
-        public Barcode GetBarcode(int id)
+        public Barcode? GetBarcode(int id)
         {
             return _context.Barcodes.FirstOrDefault(b => b.Id == id);
         }

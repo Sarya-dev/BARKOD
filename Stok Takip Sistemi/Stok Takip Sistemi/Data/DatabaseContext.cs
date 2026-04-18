@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
-using BarkodOtomasyon.Models;
+using StokTakipSistemi.Models;
 
-namespace BarkodOtomasyon.Data
+namespace StokTakipSistemi.Data
 {
     public class DatabaseContext : DbContext
     {
@@ -11,6 +11,8 @@ namespace BarkodOtomasyon.Data
 
         public DbSet<Barcode> Barcodes { get; set; }
         public DbSet<Product> Products { get; set; }
+        public DbSet<Depot> Depots { get; set; }
+        public DbSet<StockMovement> StockMovements { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -23,6 +25,19 @@ namespace BarkodOtomasyon.Data
             modelBuilder.Entity<Product>()
                 .Property(p => p.Price)
                 .HasPrecision(18, 2);
+
+            // StockMovement ilişkileri
+            modelBuilder.Entity<StockMovement>()
+                .HasOne(sm => sm.Product)
+                .WithMany(p => p.StockMovements)
+                .HasForeignKey(sm => sm.ProductId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<StockMovement>()
+                .HasOne(sm => sm.Depot)
+                .WithMany(d => d.StockMovements)
+                .HasForeignKey(sm => sm.DepotId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

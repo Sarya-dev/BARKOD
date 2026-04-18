@@ -1,8 +1,7 @@
-namespace BarkodOtomasyon.Services
-
+namespace StokTakipSistemi.Services
 {
-    using BarkodOtomasyon.Data;
-    using BarkodOtomasyon.Models;
+    using StokTakipSistemi.Data;
+    using StokTakipSistemi.Models;
     using System.Collections.Generic;
     using System.Linq;
 
@@ -26,7 +25,7 @@ namespace BarkodOtomasyon.Services
             return _context.Products.ToList();
         }
 
-        public Product GetProductById(int id)
+        public Product? GetProductById(int id)
         {
             return _context.Products.Find(id);
         }

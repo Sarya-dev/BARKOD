@@ -1,11 +1,11 @@
 using System;
 using System.Linq;
 using System.Windows.Forms;
-using BarkodOtomasyon.Data;
-using BarkodOtomasyon.Models;
-using BarkodOtomasyon.Services;
+using StokTakipSistemi.Data;
+using StokTakipSistemi.Models;
+using StokTakipSistemi.Services;
 
-namespace BarkodOtomasyon
+namespace StokTakipSistemi
 {
     public partial class ProductEditForm : Form
     {
